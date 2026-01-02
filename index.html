@@ -105,7 +105,7 @@
             cg.appendChild(c);
           });
           table.insertBefore(cg, table.firstChild);
-        } catch {}
+        } catch (e) {}
         const thead = document.getElementById('thead'); thead.innerHTML = ''; thead.appendChild(headRow);
       }
 
@@ -123,7 +123,7 @@
             if (col.key === 'actions') {
               if (pickMode) {
                 const btnPick = document.createElement('button'); btnPick.className = 'btn secondary'; btnPick.innerHTML = '<i class="ri-check-line"></i> 选择';
-                btnPick.addEventListener('click', () => { try { const name = String((students[idx]?.name) || '').trim(); if (name) window.lowbarAPI?.emitEvent?.(channel, { type: 'pick', name }); } catch {} });
+                btnPick.addEventListener('click', () => { try { const name = String((students[idx]?.name) || '').trim(); if (name) window.lowbarAPI?.emitEvent?.(channel, { type: 'pick', name }); } catch (e) {} });
                 td.appendChild(btnPick);
               } else {
                 const btnDel = document.createElement('button'); btnDel.className = 'btn danger'; btnDel.innerHTML = '<i class="ri-delete-bin-line"></i> 删除';
@@ -181,15 +181,15 @@
         if ((!Array.isArray(toSave) || toSave.length === 0) && Array.isArray(students) && students.length) {
           toSave = students.map((s) => ({ ...s }));
         }
-        try { if (window.lowbarAPI?.configEnsureDefaults) await window.lowbarAPI.configEnsureDefaults('profiles-students', { students: [] }); } catch {}
+        try { if (window.lowbarAPI?.configEnsureDefaults) await window.lowbarAPI.configEnsureDefaults('profiles-students', { students: [] }); } catch (e) {}
         // 双写：优先直写配置，再调用后端保存，确保持久化
         if (window.lowbarAPI?.configSet) {
-          try { await window.lowbarAPI.configSet('profiles-students', 'students', toSave); } catch {}
+          try { await window.lowbarAPI.configSet('profiles-students', 'students', toSave); } catch (e) {}
         } else if (window.pluginAPI?.configSet) {
-          try { await window.pluginAPI.configSet('profiles-students', 'students', toSave); } catch {}
+          try { await window.pluginAPI.configSet('profiles-students', 'students', toSave); } catch (e) {}
         }
         if (window.lowbarAPI?.pluginCall) {
-          try { await window.lowbarAPI.pluginCall?.(caller, 'saveStudents', { students: toSave }); } catch {}
+          try { await window.lowbarAPI.pluginCall?.(caller, 'saveStudents', { students: toSave }); } catch (e) {}
         }
         await loadStudents();
       }
@@ -254,7 +254,7 @@
           channel = String(u.searchParams.get('channel') || '');
           caller = String(u.searchParams.get('caller') || '');
           pickMode = String(u.searchParams.get('mode') || '') === 'pick';
-        } catch {}
+        } catch (e) {}
         if (window.lowbarAPI) {
           window.lowbarAPI.subscribe?.(channel);
           window.lowbarAPI.onEvent?.((name, payload) => {

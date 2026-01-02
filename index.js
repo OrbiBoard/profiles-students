@@ -9,7 +9,7 @@ let pluginApi = null;
 function fileUrl(p) { return url.pathToFileURL(p).href; }
 
 function emitUpdate(channel, target, value) {
-  try { pluginApi.emit(channel, { type: 'update', target, value }); } catch {}
+  try { pluginApi.emit(channel, { type: 'update', target, value }); } catch (e) {}
 }
 
 const EVENT_CHANNEL = 'profiles.students.channel';
@@ -65,7 +65,7 @@ const functions = {
   },
   getStudents: async () => {
     try {
-      try { store.ensureDefaults('profiles-students', { students: [] }); } catch {}
+      try { store.ensureDefaults('profiles-students', { students: [] }); } catch (e) {}
       const arr = store.get('profiles-students', 'students');
       return { ok: true, students: Array.isArray(arr) ? arr : [] };
     } catch (e) { return { ok: false, students: [], error: e?.message || String(e) }; }
@@ -76,7 +76,7 @@ const functions = {
         return { ok: false, error: 'invalid_students' };
       }
       store.set('profiles-students', 'students', payload.students);
-      try { emitUpdate(EVENT_CHANNEL, 'refresh', true); } catch {}
+      try { emitUpdate(EVENT_CHANNEL, 'refresh', true); } catch (e) {}
       return { ok: true };
     } catch (e) { return { ok: false, error: e?.message || String(e) }; }
   }

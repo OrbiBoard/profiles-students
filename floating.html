@@ -26,11 +26,11 @@
     <script>
       let channel = '';
       (function init(){
-        try { const u = new URL(window.location.href); channel = String(u.searchParams.get('channel')||''); } catch {}
+        try { const u = new URL(window.location.href); channel = String(u.searchParams.get('channel')||''); } catch (e) {}
         document.getElementById('apply')?.addEventListener('click', () => {
           const t = document.getElementById('txt');
           const text = String((t?.value)||'');
-          try { window.lowbarAPI?.emitEvent?.(channel, { type:'update', target:'students.import.apply', value:{ text } }); } catch {}
+          try { window.lowbarAPI?.emitEvent?.(channel, { type:'update', target:'students.import.apply', value:{ text } }); } catch (e) {}
         });
         document.getElementById('clear')?.addEventListener('click', () => { const t = document.getElementById('txt'); if (t) t.value = ''; });
       })();
