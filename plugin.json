@@ -1,5 +1,5 @@
 {
-  "id": "profiles.students",
+  "id": "profiles-students",
   "name": "档案-学生列表",
   "version": "1.0.0",
   "author": "OrbiBoard",
@@ -14,7 +14,7 @@
     }
   ],
   "dependencies": [
-    "ui.lowbar"
+    "ui-lowbar"
   ],
   "variables": [
     "timeISO",

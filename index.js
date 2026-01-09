@@ -12,16 +12,16 @@ function emitUpdate(channel, target, value) {
   try { pluginApi.emit(channel, { type: 'update', target, value }); } catch (e) {}
 }
 
-const EVENT_CHANNEL = 'profiles.students.channel';
+const EVENT_CHANNEL = 'profiles-students-channel';
 
 const functions = {
   openStudents: async () => {
-    const bg = fileUrl(path.join(__dirname, 'index.html')) + `?channel=${encodeURIComponent(EVENT_CHANNEL)}&caller=${encodeURIComponent('profiles.students')}`;
+    const bg = fileUrl(path.join(__dirname, 'index.html')) + `?channel=${encodeURIComponent(EVENT_CHANNEL)}&caller=${encodeURIComponent('profiles-students')}`;
   const params = {
       title: '档案-学生列表',
       eventChannel: EVENT_CHANNEL,
       subscribeTopics: [EVENT_CHANNEL],
-      callerPluginId: 'profiles.students',
+      callerPluginId: 'profiles-students',
       backgroundUrl: bg,
       floatingUrl: null,
       leftItems: [
@@ -31,7 +31,7 @@ const functions = {
       ],
       centerItems: []
     };
-    await pluginApi.call('ui.lowbar', 'openTemplate', [params]);
+    await pluginApi.call('ui-lowbar', 'openTemplate', [params]);
     return true;
   },
   onLowbarEvent: async (payload = {}) => {
@@ -47,7 +47,7 @@ const functions = {
         } else if (payload.id === 'importText') {
           emitUpdate(EVENT_CHANNEL, 'floatingBounds', 'center');
           emitUpdate(EVENT_CHANNEL, 'floatingBounds', { width: 620, height: 420 });
-          const floatUrl = fileUrl(path.join(__dirname, 'floating.html')) + `?channel=${encodeURIComponent(EVENT_CHANNEL)}&caller=${encodeURIComponent('profiles.students')}`;
+          const floatUrl = fileUrl(path.join(__dirname, 'floating.html')) + `?channel=${encodeURIComponent(EVENT_CHANNEL)}&caller=${encodeURIComponent('profiles-students')}`;
           emitUpdate(EVENT_CHANNEL, 'floatingUrl', floatUrl);
         }
       }
@@ -89,7 +89,7 @@ const init = async (api) => {
 };
 
 module.exports = {
-  name: 'profiles.students',
+  name: 'profiles-students',
   version: '1.0.0',
   description: '档案-学生列表（底栏模板）',
   init,
