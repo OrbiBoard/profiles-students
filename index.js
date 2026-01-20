@@ -1,8 +1,5 @@
 const path = require('path');
-const { app } = require('electron');
 const url = require('url');
-const store = require(path.join(app.getAppPath(), 'src', 'main', 'store.js'));
-const pluginManager = require(path.join(app.getAppPath(), 'src', 'main', 'pluginManager.js'));
 
 let pluginApi = null;
 
@@ -38,9 +35,9 @@ const functions = {
     try {
       if (payload?.type === 'left.click') {
         if (payload.id === 'add') {
-          const list = Array.isArray(store.get('profiles-students', 'students')) ? store.get('profiles-students', 'students') : [];
+          const list = Array.isArray(pluginApi.store.get('students')) ? pluginApi.store.get('students') : [];
           list.push({ required: true, name: '', gender: '未选择' });
-          store.set('profiles-students', 'students', list);
+          pluginApi.store.set('students', list);
           emitUpdate(EVENT_CHANNEL, 'refresh', true);
         } else if (payload.id === 'save') {
           emitUpdate(EVENT_CHANNEL, 'students.save', true);
@@ -58,16 +55,16 @@ const functions = {
   },
   getColumns: async () => {
     try {
-      const defsRes = pluginManager.getStudentColumnDefs();
+      const defsRes = pluginApi.getStudentColumnDefs();
       const extra = Array.isArray(defsRes?.columns) ? defsRes.columns : [];
       return { ok: true, columns: extra };
     } catch (e) { return { ok: false, error: e?.message || String(e) }; }
   },
   getStudents: async () => {
     try {
-      try { store.ensureDefaults('profiles-students', { students: [] }); } catch (e) {}
-      const arr = store.get('profiles-students', 'students');
-      return { ok: true, students: Array.isArray(arr) ? arr : [] };
+      let arr = pluginApi.store.get('students');
+      if (!Array.isArray(arr)) { arr = []; pluginApi.store.set('students', arr); }
+      return { ok: true, students: arr };
     } catch (e) { return { ok: false, students: [], error: e?.message || String(e) }; }
   },
   saveStudents: async (payload) => {
@@ -75,7 +72,7 @@ const functions = {
       if (!Array.isArray(payload?.students)) {
         return { ok: false, error: 'invalid_students' };
       }
-      store.set('profiles-students', 'students', payload.students);
+      pluginApi.store.set('students', payload.students);
       try { emitUpdate(EVENT_CHANNEL, 'refresh', true); } catch (e) {}
       return { ok: true };
     } catch (e) { return { ok: false, error: e?.message || String(e) }; }
