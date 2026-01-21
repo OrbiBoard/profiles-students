@@ -1,11 +1,14 @@
-# profiles-students 插件
+# 档案.学生列表 (profiles-students)
 
-该仓库包含 OrbiBoard 主程序的 profiles-students 插件源码。
+## 简介
+使用底栏模板统一样式的学生档案编辑界面插件。
 
-用法
-- 将本目录作为独立 Git 仓库管理。
-- 依赖请在 `plugin.json` 的 `npmDependencies` 或 `dependencies` 中声明，由主程序在运行时通过插件依赖管理安装。
+## 功能
+- **档案-学生列表**: 打开学生档案管理界面。
 
-开发
-- 页面入口：`index.html` 与 `floating.html`
-- 后端入口：`index.js`
+## 依赖
+- ui-lowbar
+
+## 配置
+插件支持以下配置：
+- **学生列表**: 维护学生的基本信息（姓名、性别、是否必选等）。
