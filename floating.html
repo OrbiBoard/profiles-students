@@ -7,8 +7,20 @@
     <link rel="stylesheet" href="../../renderer/remixicon-local.css" />
     <link rel="stylesheet" href="../../renderer/settings.css" />
     <style>
-      body { margin: 0; padding: 12px; }
-      textarea { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; }
+      :root {
+        --bg: #121621;
+        --fg: #ededed;
+        --muted: #94a3b8;
+        --accent: #238f4a;
+        --panel: rgba(255,255,255,0.06);
+        --item-bg: rgba(255,255,255,0.04);
+        --border: rgba(255,255,255,0.12);
+        --accent-rgb: 35, 143, 74;
+      }
+      body { margin: 0; padding: 12px; background: var(--bg); color: var(--fg); transition: background 0.3s, color 0.3s; }
+      textarea { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--item-bg); color: var(--fg); resize: vertical; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+      textarea:focus { border-color: var(--accent); outline: none; }
+      textarea::placeholder { color: var(--muted); }
       .row { display:flex; gap:8px; margin-top:8px; }
       .muted { color: var(--muted); margin-top:4px; }
     </style>
@@ -25,7 +37,71 @@
     </div>
     <script>
       let channel = '';
+      let currentThemeMode = 'system';
+      let currentThemeColor = '#238f4a';
+
+      window.applyTheme = (mode, color) => {
+        const root = document.documentElement;
+        const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        
+        const accent = color || '#238f4a';
+        root.style.setProperty('--accent', accent);
+        
+        const hex = accent.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        root.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+        
+        if (isDark) {
+          root.style.setProperty('--bg', '#121621');
+          root.style.setProperty('--fg', '#ededed');
+          root.style.setProperty('--muted', '#94a3b8');
+          root.style.setProperty('--panel', 'rgba(255, 255, 255, 0.06)');
+          root.style.setProperty('--item-bg', 'rgba(255, 255, 255, 0.04)');
+          root.style.setProperty('--border', 'rgba(255, 255, 255, 0.12)');
+        } else {
+          root.style.setProperty('--bg', '#f3f4f6');
+          root.style.setProperty('--fg', '#1f2937');
+          root.style.setProperty('--muted', '#6b7280');
+          root.style.setProperty('--panel', '#ffffff');
+          root.style.setProperty('--item-bg', '#f9fafb');
+          root.style.setProperty('--border', '#e5e7eb');
+        }
+      };
+
+      async function initTheme() {
+        try {
+          if (window.lowbarAPI?.configGet) {
+            currentThemeMode = await window.lowbarAPI.configGet('system', 'themeMode') || 'system';
+            currentThemeColor = await window.lowbarAPI.configGet('system', 'themeColor') || '#238f4a';
+            window.applyTheme(currentThemeMode, currentThemeColor);
+          }
+          
+          if (window.lowbarAPI?.onConfigChanged) {
+            window.lowbarAPI.onConfigChanged(async ({ scope, key, value }) => {
+              if (scope === 'system') {
+                currentThemeMode = await window.lowbarAPI.configGet('system', 'themeMode') || 'system';
+                currentThemeColor = await window.lowbarAPI.configGet('system', 'themeColor') || '#238f4a';
+                window.applyTheme(currentThemeMode, currentThemeColor);
+              }
+            });
+          }
+
+          if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', async () => {
+              const m = await window.lowbarAPI?.configGet('system', 'themeMode') || 'system';
+              if (m === 'system') {
+                const c = await window.lowbarAPI?.configGet('system', 'themeColor') || '#238f4a';
+                window.applyTheme('system', c);
+              }
+            });
+          }
+        } catch(e) {}
+      }
+
       (function init(){
+        initTheme();
         try { const u = new URL(window.location.href); channel = String(u.searchParams.get('channel')||''); } catch (e) {}
         document.getElementById('apply')?.addEventListener('click', () => {
           const t = document.getElementById('txt');

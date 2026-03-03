@@ -7,29 +7,41 @@
     <link rel="stylesheet" href="../../renderer/remixicon-local.css" />
     <link rel="stylesheet" href="../../renderer/settings.css" />
     <style>
-      :root { --panel: rgba(255,255,255,0.06); }
-      body { margin: 0; }
-      /* 覆盖卡片背景，保持与主界面统一的纯背景 */
+      :root {
+        --bg: #121621;
+        --fg: #ededed;
+        --muted: #94a3b8;
+        --accent: #238f4a;
+        --panel: rgba(255,255,255,0.06);
+        --item-bg: rgba(255,255,255,0.04);
+        --border: rgba(255,255,255,0.12);
+        --accent-rgb: 35, 143, 74;
+        --thead-bg: #0b1520;
+      }
+      body { margin: 0; background: var(--bg); color: var(--fg); transition: background 0.3s, color 0.3s; }
       .section { padding: 16px; background: transparent !important; border: none !important; }
       table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-      th, td { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 8px; }
+      th, td { border-bottom: 1px solid var(--border); padding: 8px; }
       th { text-align: left; color: var(--muted); font-weight: 600; }
-      td input, td select { width: 100%; box-sizing: border-box; padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: var(--fg); }
+      td input, td select { width: 100%; box-sizing: border-box; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--item-bg); color: var(--fg); transition: background 0.3s, color 0.3s, border-color 0.3s; }
+      td input:focus, td select:focus { border-color: var(--accent); outline: none; }
       .muted { color: var(--muted); }
-      .list-wrap { max-height: calc(100vh - 120px); overflow: auto; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-top: 8px; position: relative; }
-      thead th { position: sticky; top: 0; background: #0b1520; }
+      .list-wrap { max-height: calc(100vh - 120px); overflow: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 8px; position: relative; }
+      thead th { position: sticky; top: 0; background: var(--thead-bg); }
       .list-wrap::-webkit-scrollbar { width: 10px; height: 10px; }
-      .list-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); }
+      .list-wrap::-webkit-scrollbar-track { background: var(--item-bg); }
       .list-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 8px; }
       .list-wrap::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
       th:not(.col-index):not(.col-actions), td:not(.col-index):not(.col-actions) { width: 220px; max-width: 220px; }
       th.col-name, td.col-name { width: 240px !important; }
       th.col-gender, td.col-gender { width: 120px !important; }
-      th.col-index, td.col-index { width: 56px; max-width: 56px; min-width: 48px; position: sticky; left: 0; z-index: 2; background: rgba(255,255,255,0.04); text-align: center; }
-      th.col-actions, td.col-actions { width: 140px; max-width: 140px; position: sticky; right: 0; z-index: 2; background: rgba(255,255,255,0.04); text-align: right; }
-      thead th.col-index, thead th.col-actions { z-index: 3; background: #0b1520; }
+      th.col-index, td.col-index { width: 56px; max-width: 56px; min-width: 48px; position: sticky; left: 0; z-index: 2; background: var(--item-bg); text-align: center; }
+      th.col-actions, td.col-actions { width: 140px; max-width: 140px; position: sticky; right: 0; z-index: 2; background: var(--item-bg); text-align: right; }
+      thead th.col-index, thead th.col-actions { z-index: 3; background: var(--thead-bg); }
       th:not(.col-index):not(.col-actions):not(.col-spacer), td:not(.col-index):not(.col-actions):not(.col-spacer) { max-width: 240px; }
       th.col-spacer, td.col-spacer { width: auto; }
+      .import-box textarea { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--item-bg); color: var(--fg); resize: vertical; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+      .import-box textarea:focus { border-color: var(--accent); outline: none; }
     </style>
   </head>
   <body>
@@ -63,6 +75,70 @@
       let channel = '';
       let caller = '';
       let pickMode = false;
+      let currentThemeMode = 'system';
+      let currentThemeColor = '#238f4a';
+
+      window.applyTheme = (mode, color) => {
+        const root = document.documentElement;
+        const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        
+        const accent = color || '#238f4a';
+        root.style.setProperty('--accent', accent);
+        
+        const hex = accent.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        root.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+        
+        if (isDark) {
+          root.style.setProperty('--bg', '#121621');
+          root.style.setProperty('--fg', '#ededed');
+          root.style.setProperty('--muted', '#94a3b8');
+          root.style.setProperty('--panel', 'rgba(255, 255, 255, 0.06)');
+          root.style.setProperty('--item-bg', 'rgba(255, 255, 255, 0.04)');
+          root.style.setProperty('--border', 'rgba(255, 255, 255, 0.12)');
+          root.style.setProperty('--thead-bg', '#0b1520');
+        } else {
+          root.style.setProperty('--bg', '#f3f4f6');
+          root.style.setProperty('--fg', '#1f2937');
+          root.style.setProperty('--muted', '#6b7280');
+          root.style.setProperty('--panel', '#ffffff');
+          root.style.setProperty('--item-bg', '#f9fafb');
+          root.style.setProperty('--border', '#e5e7eb');
+          root.style.setProperty('--thead-bg', '#f9fafb');
+        }
+      };
+
+      async function initTheme() {
+        try {
+          if (window.lowbarAPI?.configGet) {
+            currentThemeMode = await window.lowbarAPI.configGet('system', 'themeMode') || 'system';
+            currentThemeColor = await window.lowbarAPI.configGet('system', 'themeColor') || '#238f4a';
+            window.applyTheme(currentThemeMode, currentThemeColor);
+          }
+          
+          if (window.lowbarAPI?.onConfigChanged) {
+            window.lowbarAPI.onConfigChanged(async ({ scope, key, value }) => {
+              if (scope === 'system') {
+                currentThemeMode = await window.lowbarAPI.configGet('system', 'themeMode') || 'system';
+                currentThemeColor = await window.lowbarAPI.configGet('system', 'themeColor') || '#238f4a';
+                window.applyTheme(currentThemeMode, currentThemeColor);
+              }
+            });
+          }
+
+          if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', async () => {
+              const m = await window.lowbarAPI?.configGet('system', 'themeMode') || 'system';
+              if (m === 'system') {
+                const c = await window.lowbarAPI?.configGet('system', 'themeColor') || '#238f4a';
+                window.applyTheme('system', c);
+              }
+            });
+          }
+        } catch(e) {}
+      }
 
       async function loadColumns() {
         let defsRes = null;
@@ -249,6 +325,7 @@
 
 
       (async function init() {
+        initTheme();
         try {
           const u = new URL(window.location.href);
           channel = String(u.searchParams.get('channel') || '');
@@ -266,7 +343,6 @@
             }
           });
         } else {
-          // 简易方案：显示顶部操作按钮
           const actions = document.getElementById('actions');
           if (actions) actions.style.display = 'flex';
           document.getElementById('btn-add')?.addEventListener('click', () => { students.push({ name:'', gender:'' }); renderBody(); });
