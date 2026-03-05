@@ -23,6 +23,7 @@ const functions = {
       floatingUrl: null,
       leftItems: [
         { id: 'add', text: '新增学生', icon: 'ri-user-add-line' },
+        { id: 'shuffle', text: '打乱顺序', icon: 'ri-shuffle-line' },
         { id: 'save', text: '保存', icon: 'ri-save-3-line' },
         { id: 'importText', text: '文本导入', icon: 'ri-file-text-line' }
       ],
@@ -39,6 +40,8 @@ const functions = {
           list.push({ required: true, name: '', gender: '未选择' });
           pluginApi.store.set('students', list);
           emitUpdate(EVENT_CHANNEL, 'refresh', true);
+        } else if (payload.id === 'shuffle') {
+          emitUpdate(EVENT_CHANNEL, 'students.shuffle', true);
         } else if (payload.id === 'save') {
           emitUpdate(EVENT_CHANNEL, 'students.save', true);
         } else if (payload.id === 'importText') {

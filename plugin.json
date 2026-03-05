@@ -1,7 +1,7 @@
 {
   "id": "profiles-students",
   "name": "档案.学生列表",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "OrbiBoard",
   "icon": "ri-file-user-line",
   "description": "使用底栏模板统一样式的学生档案编辑界面",
